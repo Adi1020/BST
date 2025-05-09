@@ -1,0 +1,90 @@
+<!-- Repaired index.html for SV 1.1.1 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#add8e6" />
+  <title>Home</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/x-icon" href="./icon/favicon.ico" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+</head>
+<body>
+  <div class="theme-toggle">
+    <label>
+      <input type="checkbox" id="darkToggle" onchange="toggleDarkMode()" />
+      🌙 Dark Mode
+    </label>
+  </div>
+
+  <header>
+    <h1>Baby Sleep Tracker</h1>
+    <nav aria-label="Main navigation">
+      <a href="./index.html" class="active">Home</a>
+      <a href="./html/summary.html">Summary</a>
+      <a href="./html/chart.html">Charts</a>
+      <a href="./html/export.html">Export to Excel</a>
+    </nav>
+  </header>
+
+  <main id="main-ui">
+    <div class="buttons">
+      <button onclick="startSleep()">💤 Start Sleep</button>
+      <button onclick="endSleep()">👻 End Sleep</button>
+    </div>
+
+    <div class="date-search">
+      <input type="date" id="date-input" />
+      <button onclick="searchByDate()">🔍 Search</button>
+    </div>
+
+    <div id="timer-display" class="hidden">
+      🕒 Sleep in progress: <span id="timer-elapsed">00:00:00</span>
+    </div>
+    
+  </main>
+
+  <!-- New summary section for search results -->
+  <div id="log-output" class="hidden">
+    <pre id="summary-text"></pre>
+     <!-- <div id="summary-text" class="summary-list"></div> -->
+    <button id="copy-summary-btn" class="hidden" onclick="copySummary()">📋 Copy Summary</button>
+  </div>
+
+  <div id="back-button" class="hidden">
+    <button onclick="RefreshPage()">🔄 Refresh Page</button>
+  </div>
+  
+
+  <footer>
+    <p>© 2025 Baby Sleep Tracker</p>
+    <p>© 🃏 POCO_dev</p>
+  </footer>
+
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js" defer></script>
+  <script src="./script.js" defer></script>
+
+  <!-- <script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const saved = localStorage.getItem("darkMode") === "true";
+    document.getElementById("darkToggle").checked = saved;
+    document.body.classList.toggle("dark", saved);
+    document.getElementById("back-button").classList.add("hidden");
+  });
+</script> -->
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./service-worker.js").then(
+        reg => console.log("✅ Service Worker registered:", reg),
+        err => console.error("❌ SW registration failed:", err)
+      );
+    });
+  }
+</script>
+
+</body>
+</html>

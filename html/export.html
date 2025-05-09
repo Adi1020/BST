@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Export Logs</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/x-icon" href="../icon/favicon.ico" />  
+  <meta name="theme-color" content="#add8e6" />
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js" defer></script>
+  <script src="../script.js" defer></script>
+</head>
+<body>
+  <!-- Dark Mode Toggle -->
+  <div class="theme-toggle">
+    <label>
+      <input type="checkbox" id="darkToggle" onchange="toggleDarkMode()" />
+      🌙 Dark Mode
+    </label>
+  </div>
+
+  <header>
+    <h1>Baby Sleep Tracker</h1>
+    <nav aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+      <a href="./summary.html">Summary</a>
+      <a href="./chart.html">Charts</a>
+      <a href="./export.html" class="active">Export</a>
+    </nav>
+  </header>
+
+  <main id="main-ui">
+    <div class="buttons">
+      <button onclick="exportToExcel()">📤 Export Sleep Logs (.xlsx)</button>
+    </div>
+  </main>
+
+  <div id="special-button">
+    <div id="back-button">
+      <button onclick="goToHome()">🔙 Back Home</button>
+    </div>
+    
+    <div id="back-button">
+      <button onclick="RefreshPage()">🔄 Refresh Page</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 Baby Sleep Tracker</p>
+    <p>© 🃏 POCO_dev</p>
+  </footer>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("darkMode") === "true";
+      const toggle = document.getElementById("darkToggle");
+      if (toggle) toggle.checked = saved;
+      document.body.classList.toggle("dark", saved);
+    });
+  </script>
+</body>
+</html>

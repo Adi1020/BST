@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Summary</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="icon" type="image/x-icon" href="../icon/favicon.ico" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="../script.js" defer></script>
+</head>
+<body>
+  <!-- Dark mode toggle -->
+  <div class="theme-toggle">
+    <label>
+      <input type="checkbox" id="darkToggle" onchange="toggleDarkMode()" />
+      🌙 Dark Mode
+    </label>
+  </div>
+
+  <header>
+    <h1>Baby Sleep Tracker</h1>
+    <nav aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+      <a href="./summary.html" class="active">Summary</a>
+      <a href="./chart.html">Charts</a>
+      <a href="./export.html">Export</a>
+    </nav>
+  </header>
+
+  <main id="main-ui">
+    <div class="buttons">
+      <button onclick="showToday()">🗓️ Today’s Summary</button>
+      <button onclick="showAll()">📊 All Sessions</button>
+    </div>
+  </main>
+
+  <div id="log-output" class="hidden">
+    <pre id="summary-text"></pre>
+    <button id="copy-summary-btn" class="hidden" onclick="copySummary()">📋 Copy Summary</button>
+  </div>
+  
+  <div id="special-button">
+    <div id="back-button">
+      <button onclick="goToHome()">🔙 Back Home</button>
+    </div>
+    
+    <div id="back-button">
+      <button onclick="RefreshPage()">🔄 Refresh Page</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 Baby Sleep Tracker</p>
+    <p>© 🃏 POCO_dev</p>
+  </footer>
+
+  <!-- Ensure dark mode and buttons initialize properly -->
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("darkMode") === "true";
+      const toggle = document.getElementById("darkToggle");
+      if (toggle) {
+        toggle.checked = saved;
+        document.body.classList.toggle("dark", saved);
+      }
+
+      const back = document.getElementById("back-button");
+      if (back) back.classList.add("hidden");
+    });
+  </script>
+</body>
+</html>

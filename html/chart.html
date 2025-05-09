@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Charts</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="icon" type="image/x-icon" href="../icon/favicon.ico" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="../script.js" defer></script>
+</head>
+<body>
+  <div class="theme-toggle">
+    <label>
+      <input type="checkbox" id="darkToggle" onchange="toggleDarkMode()" />
+      🌙 Dark Mode
+    </label>
+  </div>
+
+  <header>
+    <h1>Baby Sleep Tracker</h1>
+    <nav aria-label="Main navigation">
+      <a href="../index.html">Home</a>
+      <a href="./summary.html">Summary</a>
+      <a href="./chart.html" class="active">Charts</a>
+      <a href="./export.html">Export</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="chart-section">
+      <div class="chart-container">
+        <canvas id="barChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="typePieChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="lineChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="feedStackedChart"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <div id="special-button">
+    <div id="back-button">
+      <button onclick="goToHome()">🔙 Back Home</button>
+    </div>
+    
+    <div id="back-button">
+      <button onclick="RefreshPage()">🔄 Refresh Page</button>
+    </div>
+  </div>
+  
+  <footer>
+    <p>© 2025 Baby Sleep Tracker</p>
+    <p>© 🃏 POCO_dev</p>
+  </footer>
+</body>
+</html>
