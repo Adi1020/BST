@@ -3,6 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Theme color for mobile and PWA -->
+  <meta name="theme-color" content="#add8e6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
+
+  <!-- Apply dark mode immediately if stored -->
+  <script>
+    const savedMode = localStorage.getItem("darkMode");
+    if (savedMode === "true") {
+      document.documentElement.classList.add("dark");
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute("content", "#121212");
+    } else {
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute("content", "#add8e6");
+    }
+  </script>
   <title>Summary</title>
   <link rel="stylesheet" href="../styles.css" />
   <link rel="icon" type="image/x-icon" href="../icon/favicon.ico" />

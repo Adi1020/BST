@@ -3,7 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#add8e6" />
+  <!-- Theme color for mobile and PWA -->
+  <meta name="theme-color" content="#add8e6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
+
+  <!-- Apply dark mode immediately if stored -->
+  <script>
+    const savedMode = localStorage.getItem("darkMode");
+    if (savedMode === "true") {
+      document.documentElement.classList.add("dark");
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute("content", "#121212");
+    } else {
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute("content", "#add8e6");
+    }
+  </script>
   <title>Home</title>
   <link rel="stylesheet" href="./styles.css" />
   <link rel="manifest" href="./manifest.json" />
@@ -65,26 +80,17 @@
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js" defer></script>
   <script src="./script.js" defer></script>
 
-  <!-- <script>
-  window.addEventListener("DOMContentLoaded", () => {
-    const saved = localStorage.getItem("darkMode") === "true";
-    document.getElementById("darkToggle").checked = saved;
-    document.body.classList.toggle("dark", saved);
-    document.getElementById("back-button").classList.add("hidden");
-  });
-</script> -->
-
-<script>
-  const swPath = location.pathname.includes("/html/") ? "../service-worker.js" : "./service-worker.js";
-  if ('serviceWorker' in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register(swPath).then(
-        reg => console.log("✅ Service Worker registered:", reg),
-        err => console.error("❌ Service Worker registration failed:", err)
-      );
-    });
-  }
-</script>
+  <script>
+    const swPath = location.pathname.includes("/html/") ? "../service-worker.js" : "./service-worker.js";
+    if ('serviceWorker' in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register(swPath).then(
+          reg => console.log("✅ Service Worker registered:", reg),
+          err => console.error("❌ Service Worker registration failed:", err)
+        );
+      });
+    }
+  </script>
 
   <script>
     function toggleDarkMode() {

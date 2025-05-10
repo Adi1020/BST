@@ -189,7 +189,7 @@ function showAll() {
         💤 ${l.startTime.slice(0,5)} → ${l.endTime.slice(0,5)} | ${durStr} | 🍽️ ${l.feeding}
       </span>`;
 
-      output += `  ${sessionLine}\n`;
+      output += `${sessionLine}\n`;
     });
 
   });
@@ -317,9 +317,15 @@ function showChart() {
 }
 
 function toggleDarkMode() {
-  const on = document.getElementById("darkToggle")?.checked;
-  document.body.classList.toggle("dark", on);
-  localStorage.setItem("darkMode", on ? "true" : "false");
+  const isDark = document.getElementById("darkToggle")?.checked;
+  document.documentElement.classList.toggle("dark", isDark);
+  localStorage.setItem("darkMode", isDark ? "true" : "false");
+
+  // Update theme-color meta tag
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta) {
+    themeMeta.setAttribute("content", isDark ? "#121212" : "#add8e6");
+  }
 }
 
 function updateTimerDisplay() {
@@ -357,19 +363,28 @@ function goToHome () {
 window.addEventListener("DOMContentLoaded", () => {
   const saved = localStorage.getItem("darkMode") === "true";
   const toggle = document.getElementById("darkToggle");
+
   if (toggle) toggle.checked = saved;
+
+  // Apply .dark class to body if saved preference is dark
   document.body.classList.toggle("dark", saved);
 
+  // Update theme color
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta) {
+    themeMeta.setAttribute("content", saved ? "#121212" : "#add8e6");
+  }
+
+  // Hide back button by default
   const backBtn = document.getElementById("back-button");
   if (backBtn) backBtn.classList.add("hidden");
 
-  // If on chart.html, auto-load chart view
   if (document.getElementById("chart-section")) {
     showChart();
   }
   if (startTime) startTimer();
-
 });
+
 
 function deleteSession(index, date, source = "today") {
   const filtered = sleepLog.filter(l => l.date === date);
