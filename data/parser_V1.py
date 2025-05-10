@@ -5,6 +5,7 @@ import datetime
 
 df = pd.DataFrame()
 
+
 def load_excel():
     global df
     file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
@@ -12,12 +13,13 @@ def load_excel():
         try:
             df = pd.read_excel(file_path)
             df.columns = df.columns.str.strip()
-            df['Date'] = pd.to_datetime(df['Date']).dt.strftime('%Y-%m-%d')
+            df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
             status_label.config(text=f"Loaded: {file_path.split('/')[-1]}")
             text_box.delete(1.0, tk.END)
             text_box.insert(tk.END, "✅ File loaded. Choose an action.")
         except Exception as e:
             status_label.config(text=f"❌ Load error: {e}")
+
 
 def process_day_summary():
     global df
@@ -27,15 +29,19 @@ def process_day_summary():
         return
 
     today = datetime.datetime.today().strftime('%Y-%m-%d')
-    group = df[df['Date'] == today]
+    group = df[df['date'] == today]
     valid_durations = []
     output = f"🗓️ {today} - Today's Sleep Summary\n\n"
 
     for _, row in group.iterrows():
         try:
-            td = pd.to_timedelta("0:0:" + row['Duration']) if row['Duration'].count(":") == 1 else pd.to_timedelta(row['Duration'])
+            td = pd.to_timedelta("0:0:" + row['duration']) if row['duration'].count(":") == 1 else pd.to_timedelta(row['duration'])
             valid_durations.append(td)
-            output += f"  💤 {row['StartTime']} → {row['EndTime']} ({row['Duration']})\n"
+            output += f"  💤 {row['startTime']} → {row['endTime']} ({row['duration']})\n"
+        except KeyError as e:
+            output += f"  ⚠️ Missing key: {e}\n"
+        except Exception as e:
+            output += f"  ⚠️ Error processing row: {e}\n"
         except:
             continue
 
@@ -48,6 +54,7 @@ def process_day_summary():
     text_box.delete(1.0, tk.END)
     text_box.insert(tk.END, output)
 
+
 def process_overall_summary():
     global df
     if df.empty:
@@ -59,15 +66,15 @@ def process_overall_summary():
     total_sessions = 0
     total_time = pd.Timedelta(seconds=0)
 
-    for date in sorted(df['Date'].unique()):
-        group = df[df['Date'] == date]
+    for date in sorted(df['date'].unique()):
+        group = df[df['date'] == date]
         valid_durations = []
         output += f"🗓️ {date}\n"
         for _, row in group.iterrows():
             try:
-                td = pd.to_timedelta("0:0:" + row['Duration']) if row['Duration'].count(":") == 1 else pd.to_timedelta(row['Duration'])
+                td = pd.to_timedelta("0:0:" + row['duration']) if row['duration'].count(":") == 1 else pd.to_timedelta(row['duration'])
                 valid_durations.append(td)
-                output += f"  💤 {row['StartTime']} → {row['EndTime']} ({row['Duration']})\n"
+                output += f"  💤 {row['startTime']} → {row['endTime']} ({row['duration']})\n"
             except:
                 continue
         day_total = sum(valid_durations, pd.Timedelta(seconds=0))
@@ -75,10 +82,11 @@ def process_overall_summary():
         total_sessions += len(valid_durations)
         total_time += day_total
 
-    output += f"📊 Grand Total\n🛏 Total Sessions: {total_sessions}\n⏱ Total Duration: {total_time}\n"
+    output += f"📊 Grand Total\n🛏 Total Sessions: {total_sessions}\n⏱ Total duration: {total_time}\n"
 
     text_box.delete(1.0, tk.END)
     text_box.insert(tk.END, output)
+
 
 def search_by_date():
     global df
@@ -92,15 +100,15 @@ def search_by_date():
         text_box.insert(tk.END, "\n⚠️ Enter a date in YYYY-MM-DD format.\n")
         return
 
-    group = df[df['Date'] == date]
+    group = df[df['date'] == date]
     valid_durations = []
     output = f"🗓️ {date} - Search Results\n\n"
 
     for _, row in group.iterrows():
         try:
-            td = pd.to_timedelta("0:0:" + row['Duration']) if row['Duration'].count(":") == 1 else pd.to_timedelta(row['Duration'])
+            td = pd.to_timedelta("0:0:" + row['duration']) if row['duration'].count(":") == 1 else pd.to_timedelta(row['duration'])
             valid_durations.append(td)
-            output += f"  💤 {row['StartTime']} → {row['EndTime']} ({row['Duration']})\n"
+            output += f"  💤 {row['startTime']} → {row['endTime']} ({row['duration']})\n"
         except:
             continue
 
@@ -113,6 +121,7 @@ def search_by_date():
     text_box.delete(1.0, tk.END)
     text_box.insert(tk.END, output)
 
+
 def export_summary():
     global df
     if df.empty:
@@ -123,15 +132,15 @@ def export_summary():
     total_sessions = 0
     total_time = pd.Timedelta(seconds=0)
 
-    for date in sorted(df['Date'].unique()):
-        group = df[df['Date'] == date]
+    for date in sorted(df['date'].unique()):
+        group = df[df['date'] == date]
         valid_durations = []
         output += f"🗓️ {date}\n"
         for _, row in group.iterrows():
             try:
-                td = pd.to_timedelta("0:0:" + row['Duration']) if row['Duration'].count(":") == 1 else pd.to_timedelta(row['Duration'])
+                td = pd.to_timedelta("0:0:" + row['duration']) if row['duration'].count(":") == 1 else pd.to_timedelta(row['duration'])
                 valid_durations.append(td)
-                output += f"  💤 {row['StartTime']} → {row['EndTime']} ({row['Duration']})\n"
+                output += f"  💤 {row['startTime']} → {row['endTime']} ({row['duration']})\n"
             except:
                 continue
         day_total = sum(valid_durations, pd.Timedelta(seconds=0))
@@ -139,7 +148,7 @@ def export_summary():
         total_sessions += len(valid_durations)
         total_time += day_total
 
-    output += f"📊 Grand Total\n🛏 Total Sessions: {total_sessions}\n⏱ Total Duration: {total_time}\n"
+    output += f"📊 Grand Total\n🛏 Total Sessions: {total_sessions}\n⏱ Total duration: {total_time}\n"
 
     default_name = f"baby_sleep_summary_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
     file_path = filedialog.asksaveasfilename(
@@ -156,12 +165,14 @@ def export_summary():
         except Exception as e:
             status_label.config(text=f"❌ Save error: {e}")
 
+
 def copy_to_clipboard():
     text = text_box.get("1.0", tk.END).strip()
     if text:
         root.clipboard_clear()
         root.clipboard_append(text)
         status_label.config(text="📋 Copied to clipboard")
+
 
 # GUI Setup
 root = tk.Tk()
@@ -180,10 +191,10 @@ tk.Button(frame, text="📋 Copy Summary", command=copy_to_clipboard).grid(row=1
 search_frame = tk.Frame(root)
 search_frame.pack(padx=10, pady=(0, 10))
 
-tk.Label(search_frame, text="🔍 Enter Date (YYYY-MM-DD):").pack(side=tk.LEFT)
+tk.Label(search_frame, text="🔍 Enter date (YYYY-MM-DD):").pack(side=tk.LEFT)
 search_entry = tk.Entry(search_frame, width=15)
 search_entry.pack(side=tk.LEFT, padx=5)
-tk.Button(search_frame, text="Search by Date", command=search_by_date).pack(side=tk.LEFT)
+tk.Button(search_frame, text="Search by date", command=search_by_date).pack(side=tk.LEFT)
 
 # Output box
 text_box = tk.Text(root, height=25, width=100)

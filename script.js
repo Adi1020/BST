@@ -81,63 +81,6 @@ function showView(view) {
   else if (view === "chart" && chartSection) chartSection.classList.remove("hidden");
 }
 
-// function returnToMain() {
-//   const mainUI = document.getElementById("main-ui");
-//   const logOutput = document.getElementById("log-output");
-//   const chartSection = document.getElementById("chart-section");
-//   const copyBtn = document.getElementById("copy-summary-btn");
-//   const summaryText = document.getElementById("summary-text");
-//   const backBtn = document.getElementById("back-button");
-
-//   if (mainUI) mainUI.classList.remove("hidden");
-//   if (logOutput) logOutput.classList.add("hidden");
-//   if (chartSection) chartSection.classList.add("hidden");
-//   if (copyBtn) copyBtn.classList.add("hidden");
-//   if (summaryText) summaryText.textContent = "";
-//   if (backBtn) backBtn.classList.add("hidden");
-// }
-
-// Original function
-// function displayLogs(logs, title) {
-//   showView("log");
-
-//   const summaryText = document.getElementById("summary-text");
-//   const copyBtn = document.getElementById("copy-summary-btn");
-//   if (!summaryText) return;
-
-//   let output = `${title}\n\n`;
-//   if (!logs.length) {
-//     output += "❌ No sessions found.";
-//   } else {
-//     const total = logs.reduce((sum, l) => sum + toSeconds(l.duration), 0);
-//     const avgMin = Math.round(total / (logs.length * 60));
-//     const typeCounts = { Nap: 0, "Mid Nap": 0, "Sleep Session": 0 };
-//     const feedCounts = { before: 0, after: 0, none: 0 };
-
-//     logs.forEach(l => {
-//       typeCounts[l.sessionType]++;
-//       feedCounts[l.feeding]++;
-//     });
-
-//     output += `🛌 ${logs.length} sessions | ⏱ Total: ${formatDuration(total)} | 🧮 Avg: ${avgMin}m\n`;
-//     output += `📊 Types: ${typeCounts.Nap} Nap, ${typeCounts["Mid Nap"]} Mid, ${typeCounts["Sleep Session"]} Sleep\n`;
-//     output += `🍽️ Feeding: ${feedCounts.before} before, ${feedCounts.after} after, ${feedCounts.none} none\n\n`;
-
-//     logs.forEach(l => {
-//       const durMin = Math.round(toSeconds(l.duration) / 60),
-//             h = Math.floor(durMin / 60),
-//             m = durMin % 60,
-//             durStr = h ? `${h}h ${m}m` : `${m}m`;
-//       // output += `🕒 ${l.startTime.slice(0,5)} → ${l.endTime.slice(0,5)} | ${durStr} | 💤 ${l.sessionType} | 🍽️ ${l.feeding} | 🗑️ Delete [${index}]\n`;
-//       output += `🕒 ${l.startTime.slice(0,5)} → ${l.endTime.slice(0,5)} | ${durStr} | 💤 ${l.sessionType} | 🍽️ ${l.feeding}\n`;
-//     });
-//   }
-
-//   summaryText.textContent = output;
-//   if (copyBtn && logs.length) copyBtn.classList.remove("hidden");
-// }
-
-
 function displayLogs(logs, title) {
   showView("log");
 
@@ -159,7 +102,10 @@ function displayLogs(logs, title) {
       feedCounts[l.feeding]++;
     });
 
-    output += `🛌 ${logs.length} sessions | ⏱ Total: ${formatDuration(total)} | 🧮 Avg: ${avgMin}m\n`;
+    const avgStr = avgMin >= 60 
+      ? `${Math.floor(avgMin / 60)}h ${avgMin % 60}m` 
+      : `${avgMin}m`;
+    output += `🛌 ${logs.length} sessions | ⏱ Total: ${formatDuration(total)} | 🧮 Avg: ${avgStr}\n`;
     output += `📊 Types: ${typeCounts.Nap} Nap, ${typeCounts["Mid Nap"]} Mid, ${typeCounts["Sleep Session"]} Sleep\n`;
     output += `🍽️ Feeding: ${feedCounts.before} before, ${feedCounts.after} after, ${feedCounts.none} none\n\n`;
 
@@ -197,52 +143,7 @@ function showToday() {
     `🗓️ Summary for ${today}`
   );
 }
-// Original function
-// function showAll() {
-//   showView("log");
 
-//   const summaryText = document.getElementById("summary-text");
-//   const copyBtn = document.getElementById("copy-summary-btn");
-//   if (summaryText) summaryText.textContent = "";
-//   if (copyBtn) copyBtn.classList.add("hidden");
-
-//   const grouped = {};
-//   sleepLog.forEach(l => {
-//     grouped[l.date] = grouped[l.date] || [];
-//     grouped[l.date].push(l);
-//   });
-
-//   const dates = Object.keys(grouped).sort();
-//   let output = "📊 Overall Sleep Summary by Day:\n\n";
-
-//   if (dates.length === 0) {
-//     output = "❌ No sessions found.";
-//   } else {
-//     let totalSessions = 0, totalTime = 0;
-
-//     dates.forEach(date => {
-//       const dayLogs = grouped[date];
-//       const dayTotal = dayLogs.reduce((sum, l) => sum + toSeconds(l.duration), 0);
-//       totalSessions += dayLogs.length;
-//       totalTime += dayTotal;
-
-//       output += `🗓️ ${date} | 🛌 ${dayLogs.length} | ⏱ ${formatDuration(dayTotal)}\n`;
-//       dayLogs.forEach(l => {
-//         const mins = Math.round(toSeconds(l.duration) / 60),
-//               h = Math.floor(mins / 60),
-//               m = mins % 60,
-//               overallDurStr = h ? `${h}h ${m}m` : `${m}m`;
-//         output += `  💤 ${l.startTime.slice(0,5)} → ${l.endTime.slice(0,5)} | ${overallDurStr} | 🍽️ ${l.feeding}\n`;
-//       });
-//       output += "\n";
-//     });
-
-//     output += `📅 ${dates.length} days | 🛌 ${totalSessions} total | ⏱ ${formatDuration(totalTime)}`;
-//   }
-
-//   if (summaryText) summaryText.textContent = output;
-//   if (copyBtn && dates.length > 0) copyBtn.classList.remove("hidden");
-// }
 function showAll() {
   showView("log");
 
@@ -291,8 +192,8 @@ function showAll() {
       output += `  ${sessionLine}\n`;
     });
 
-    output += "\n";
   });
+  output += "\n";
 
   output += `📅 ${dates.length} days | 🛌 ${totalSessions} total | ⏱ ${formatDuration(totalTime)}`;
   summaryText.innerHTML = output;
@@ -445,7 +346,6 @@ function stopTimer() {
 }
 
 function RefreshPage() {
-  window.scrollTo({ top: 0 });
   location.reload();
 }
 

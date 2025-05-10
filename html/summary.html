@@ -24,7 +24,7 @@
       <a href="../index.html">Home</a>
       <a href="./summary.html" class="active">Summary</a>
       <a href="./chart.html">Charts</a>
-      <a href="./export.html">Export</a>
+      <a href="./export.html">Export Data</a>
     </nav>
   </header>
 
@@ -39,7 +39,7 @@
     <pre id="summary-text"></pre>
     <button id="copy-summary-btn" class="hidden" onclick="copySummary()">📋 Copy Summary</button>
   </div>
-  
+
   <div id="special-button">
     <div id="back-button">
       <button onclick="goToHome()">🔙 Back Home</button>
@@ -49,14 +49,13 @@
       <button onclick="RefreshPage()">🔄 Refresh Page</button>
     </div>
   </div>
-
+  
   <footer>
-    <p>© 2025 Baby Sleep Tracker</p>
     <p>© 🃏 POCO_dev</p>
   </footer>
 
   <!-- Ensure dark mode and buttons initialize properly -->
-  <script>
+  <!-- <script>
     window.addEventListener("DOMContentLoaded", () => {
       const saved = localStorage.getItem("darkMode") === "true";
       const toggle = document.getElementById("darkToggle");
@@ -68,6 +67,6 @@
       const back = document.getElementById("back-button");
       if (back) back.classList.add("hidden");
     });
-  </script>
+  </script> -->
 </body>
 </html>

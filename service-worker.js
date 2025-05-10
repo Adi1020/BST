@@ -23,7 +23,8 @@ const urlsToCache = [
   "./manifest.json",
   "./sleepPic.png",
   "./html/summary.html",
-  "./html/chart.html"
+  "./html/chart.html",
+  "./html/export.html"
 ];
 
 // Install and cache essential files

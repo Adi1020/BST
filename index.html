@@ -1,7 +1,7 @@
-<!-- Repaired index.html for SV 1.1.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#add8e6" />
@@ -25,7 +25,7 @@
       <a href="./index.html" class="active">Home</a>
       <a href="./html/summary.html">Summary</a>
       <a href="./html/chart.html">Charts</a>
-      <a href="./html/export.html">Export to Excel</a>
+      <a href="./html/export.html">Export Data</a>
     </nav>
   </header>
 
@@ -59,7 +59,6 @@
   
 
   <footer>
-    <p>© 2025 Baby Sleep Tracker</p>
     <p>© 🃏 POCO_dev</p>
   </footer>
 
@@ -76,15 +75,29 @@
 </script> -->
 
 <script>
+  const swPath = location.pathname.includes("/html/") ? "../service-worker.js" : "./service-worker.js";
   if ('serviceWorker' in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./service-worker.js").then(
+      navigator.serviceWorker.register(swPath).then(
         reg => console.log("✅ Service Worker registered:", reg),
-        err => console.error("❌ SW registration failed:", err)
+        err => console.error("❌ Service Worker registration failed:", err)
       );
     });
   }
 </script>
+
+  <script>
+    function toggleDarkMode() {
+      const isDark = document.getElementById("darkToggle").checked;
+      document.documentElement.classList.toggle("dark", isDark);
+      localStorage.setItem("darkMode", isDark ? "true" : "false");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("darkMode") === "true";
+      document.getElementById("darkToggle").checked = saved;
+    });
+  </script>
 
 </body>
 </html>
