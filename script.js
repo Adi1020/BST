@@ -138,7 +138,7 @@ function showToday() {
   const today = new Date().toISOString().split("T")[0];
   displayLogs(
     sleepLog.filter(l => l.date === today),
-    `📅 Summary for ${today}`
+    `🗓️ Summary for ${today}`
   );
 }
 
@@ -172,7 +172,7 @@ function showAll() {
       totalSessions += dayLogs.length;
       totalTime += dayTotal;
 
-      output += `\n📅 ${date} | 🛌 ${dayLogs.length} | ⏱ ${formatDuration(dayTotal)}\n`;
+      output += `\n🗓️ ${date} | 🛌 ${dayLogs.length} | ⏱ ${formatDuration(dayTotal)}\nTTTTTTTTTTTTTTTTTTTTTTTT`;
 
       dayLogs.forEach((l, i) => {
         const mins = Math.round(toSeconds(l.duration) / 60),
@@ -188,7 +188,7 @@ function showAll() {
       });
     });
 
-    output += `\n📅 ${dates.length} days | 🛌 ${totalSessions} total | ⏱ ${formatDuration(totalTime)}`;
+    output += `\n🗓️ ${dates.length} days | 🛌 ${totalSessions} total | ⏱ ${formatDuration(totalTime)}`;
   }
 
   summaryText.innerHTML = output;
@@ -209,7 +209,7 @@ function searchByDate() {
   if (!input || !input.value) return alert("Please pick a date.");
   displayLogs(
     sleepLog.filter(l => l.date === input.value),
-    `📅 Sessions for ${input.value}`
+    `🗓️ Sessions for ${input.value}`
   );
 }
 
