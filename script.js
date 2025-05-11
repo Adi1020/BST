@@ -116,7 +116,7 @@ function displayLogs(logs, title) {
             durStr = h ? `${h}h ${m}m` : `${m}m`;
 
       const sessionText = `🕒 ${l.startTime.split(':').slice(0,2).join(':')} → ${l.endTime.split(':').slice(0,2).join(':')} | ${durStr} | 💤 ${l.sessionType} | 🍽️ ${l.feeding}`;
-      output += `<span class="deletable" title="💡Click to delete this session" data-index="${i}" data-date="${l.date}">${sessionText}</span>\n`;
+      output += `<div class="deletable" title="💡Click to delete this session" data-index="${i}" data-date="${l.date}">${sessionText}</div>\n`;
     });
   } 
 
