@@ -95,7 +95,7 @@ function displayLogs(logs, title) {
     const total = logs.reduce((sum, l) => sum + toSeconds(l.duration), 0);
     const avgMin = Math.round(total / (logs.length * 60));
     const typeCounts = { Nap: 0, "Mid Nap": 0, "Sleep Session": 0 };
-    const feedCounts = { before: 0, after: 0, none: 0 };
+    const feedCounts = { before: 0, after: 0};
 
     logs.forEach(l => {
       typeCounts[l.sessionType]++;
@@ -106,8 +106,8 @@ function displayLogs(logs, title) {
       ? `${Math.floor(avgMin / 60)}h ${avgMin % 60}m` 
       : `${avgMin}m`;
     output += `🛌 ${logs.length} sessions | ⏱ Total: ${formatDuration(total)} | 🧮 Avg: ${avgStr}\n`;
-    output += `📊 Types: ${typeCounts.Nap} Nap, ${typeCounts["Mid Nap"]} Mid, ${typeCounts["Sleep Session"]} Sleep\n`;
-    output += `🍽️ Feeding: ${feedCounts.before} before, ${feedCounts.after} after, ${feedCounts.none} none\n\n`;
+    output += `📊 Types: ${typeCounts.Nap} Nap, ${typeCounts["Mid Nap"]} Mid-Nap, ${typeCounts["Sleep Session"]} Sleep\n`;
+    output += `🍽️ Feeding: ${feedCounts.before} before, ${feedCounts.after} after\n\n`;
 
     logs.forEach((l, i) => {
       const durMin = Math.round(toSeconds(l.duration) / 60),
@@ -115,7 +115,7 @@ function displayLogs(logs, title) {
             m = durMin % 60,
             durStr = h ? `${h}h ${m}m` : `${m}m`;
 
-      const sessionText = `🕒 ${l.startTime.slice(0,5)} → ${l.endTime.slice(0,5)} | ${durStr} | 💤 ${l.sessionType} | 🍽️ ${l.feeding}`;
+      const sessionText = `🕒 ${l.startTime.split(':').slice(0,2).join(':')} → ${l.endTime.split(':').slice(0,2).join(':')} | ${durStr} | 💤 ${l.sessionType} | 🍽️ ${l.feeding}`;
       output += `<span class="deletable" title="💡Click to delete this session" data-index="${i}" data-date="${l.date}">${sessionText}</span>\n`;
     });
   } 
@@ -134,8 +134,6 @@ function displayLogs(logs, title) {
   if (copyBtn && logs.length) copyBtn.classList.remove("hidden");
 }
 
-
-
 function showToday() {
   const today = new Date().toISOString().split("T")[0];
   displayLogs(
@@ -151,7 +149,7 @@ function showAll() {
   const copyBtn = document.getElementById("copy-summary-btn");
   if (!summaryText) return;
 
-  summaryText.innerHTML = ""; // Clear the output
+  summaryText.innerHTML = "";
   if (copyBtn) copyBtn.classList.add("hidden");
 
   const grouped = {};
@@ -161,44 +159,40 @@ function showAll() {
   });
 
   const dates = Object.keys(grouped).sort();
-  let output = "📊 Overall Sleep Summary by Day:\n\n";
+  let output = "📊 Overall Sleep Summary by Day:\n";
 
   if (dates.length === 0) {
-    output += "❌ No sessions found.";
-    summaryText.textContent = output;
-    return;
-  }
+    output = "❌ No sessions found.";
+  } else {
+    let totalSessions = 0, totalTime = 0;
 
-  let totalSessions = 0, totalTime = 0;
+    dates.forEach(date => {
+      const dayLogs = grouped[date];
+      const dayTotal = dayLogs.reduce((sum, l) => sum + toSeconds(l.duration), 0);
+      totalSessions += dayLogs.length;
+      totalTime += dayTotal;
 
-  dates.forEach(date => {
-    const dayLogs = grouped[date];
-    const dayTotal = dayLogs.reduce((sum, l) => sum + toSeconds(l.duration), 0);
-    totalSessions += dayLogs.length;
-    totalTime += dayTotal;
+      output += `\n🗓️ ${date} | 🛌 ${dayLogs.length} | ⏱ ${formatDuration(dayTotal)}\n`;
 
-    output += `🗓️ ${date} | 🛌 ${dayLogs.length} | ⏱ ${formatDuration(dayTotal)}\n`;
+      dayLogs.forEach((l, i) => {
+        const mins = Math.round(toSeconds(l.duration) / 60),
+              h = Math.floor(mins / 60),
+              m = mins % 60,
+              durStr = h ? `${h}h ${m}m` : `${m}m`;
 
-    dayLogs.forEach((l, i) => {
-      const mins = Math.round(toSeconds(l.duration) / 60),
-            h = Math.floor(mins / 60),
-            m = mins % 60,
-            durStr = h ? `${h}h ${m}m` : `${m}m`;
+        const start = l.startTime.split(':').slice(0,2).join(':');
+        const end = l.endTime.split(':').slice(0,2).join(':');
 
-      const sessionLine = `<span class="deletable" title="💡Click to delete this session" data-index="${i}" data-date="${l.date}">
-        💤 ${l.startTime.slice(0,5)} → ${l.endTime.slice(0,5)} | ${durStr} | 🍽️ ${l.feeding}
-      </span>`;
-
-      output += `${sessionLine}\n`;
+        const sessionText = `🛏️ ${start} → ${end} | ${durStr} | 🍽️ ${l.feeding}`;
+        output += `<span class="deletable" title="💡Click to delete this session" data-index="${i}" data-date="${l.date}">${sessionText}</span>\n`;
+      });
     });
 
-  });
-  output += "\n";
+    output += `\n📅 ${dates.length} days | 🛌 ${totalSessions} total | ⏱ ${formatDuration(totalTime)}`;
+  }
 
-  output += `📅 ${dates.length} days | 🛌 ${totalSessions} total | ⏱ ${formatDuration(totalTime)}`;
   summaryText.innerHTML = output;
 
-  // Enable click-to-delete for all session spans
   summaryText.querySelectorAll(".deletable").forEach(el => {
     el.addEventListener("click", () => {
       const index = +el.dataset.index;
@@ -209,7 +203,6 @@ function showAll() {
 
   if (copyBtn && dates.length > 0) copyBtn.classList.remove("hidden");
 }
-
 
 function searchByDate() {
   const input = document.getElementById("date-input");
@@ -242,7 +235,7 @@ function showChart() {
 
   [barChartInstance, pieChartInstance, lineChartInstance, feedStackedInstance].forEach(c => c?.destroy());
 
-  const grouped = {}, typeTotals = { Nap: 0, "Mid Nap": 0, "Sleep Session": 0 };
+  const grouped = {}, typeTotals = { Nap: 0, "Mid-Nap": 0, "Sleep Session": 0 };
   const feedByDate = {}, avgSessionLengths = {};
 
   sleepLog.forEach(log => {
@@ -250,7 +243,7 @@ function showChart() {
     grouped[d] = grouped[d] || [];
     grouped[d].push(log);
     typeTotals[log.sessionType]++;
-    feedByDate[d] = feedByDate[d] || { before:0, after:0, none:0 };
+    feedByDate[d] = feedByDate[d] || { before:0, after:0};
     feedByDate[d][log.feeding]++;
     avgSessionLengths[d] = avgSessionLengths[d] || [];
     avgSessionLengths[d].push(toSeconds(log.duration));
@@ -316,6 +309,7 @@ function showChart() {
     });
 }
 
+// Dark mode toggle
 function toggleDarkMode() {
   const isDark = document.getElementById("darkToggle")?.checked;
   document.documentElement.classList.toggle("dark", isDark);
@@ -328,6 +322,7 @@ function toggleDarkMode() {
   }
 }
 
+// Timer functions
 function updateTimerDisplay() {
   const timerDisplay = document.getElementById("timer-display");
   const timerText = document.getElementById("timer-elapsed");
@@ -351,6 +346,7 @@ function stopTimer() {
   if (timerDisplay) timerDisplay.classList.add("hidden");
 }
 
+// Route functions
 function RefreshPage() {
   location.reload();
 }
@@ -358,7 +354,6 @@ function RefreshPage() {
 function goToHome () {
   window.location.href = "../index.html";
 }
-
 
 window.addEventListener("DOMContentLoaded", () => {
   const saved = localStorage.getItem("darkMode") === "true";
@@ -384,7 +379,6 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   if (startTime) startTimer();
 });
-
 
 function deleteSession(index, date, source = "today") {
   const filtered = sleepLog.filter(l => l.date === date);

@@ -110,7 +110,7 @@ button {
   font-size: 1em;
   border-radius: 6px;
   border: 1px solid #ccc;
-  display: flex;
+  display: inherit;
 }
 
 #log-output {
@@ -132,9 +132,10 @@ button {
   font-size: 1rem;
   line-height: 1.5;
   width: 100%;
-  max-width: 800px;
+  /* max-width: 800px; */
   margin: 0 auto;
   box-sizing: border-box;
+  /* background-color: #550034; */
 }
 
 #copy-summary-btn {
