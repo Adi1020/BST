@@ -114,16 +114,16 @@ button {
 }
 
 #log-output {
-  display: flex;
+  display: none;
   flex-direction: column;
   justify-content: center;
+  align-items: center; /* <-- Add this */
   border-radius: 6px;
   box-shadow: 0 0 5px #2f5fa7;
-  margin: auto;
+  margin: 0 auto;
   box-sizing: border-box;
-  /* background-color: #af6894; */
-  /* width: 100%; */
 }
+
 
 #log-output:not(.hidden) {
   display: flex;
@@ -133,11 +133,13 @@ button {
   padding: 1rem;
   font-size: 1rem;
   line-height: 1.5;
+  max-width: 800px;      /* Add this back */
   width: 100%;
-  /* max-width: 800px; */
   margin: 0 auto;
   box-sizing: border-box;
+  text-align: left;      /* Optional: for better control */
 }
+
 
 #copy-summary-btn {
   background-color: #dcb946;
@@ -233,9 +235,9 @@ button {
     /* padding: 1rem 0.75rem; */
   }
 
-  /* #log-output {
+  #log-output {
     padding: 0.75rem;
-  } */
+  }
 
   #timer-display {
     font-size: 1em;

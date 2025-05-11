@@ -116,7 +116,7 @@ function displayLogs(logs, title) {
             durStr = h ? `${h}h ${m}m` : `${m}m`;
 
       const sessionText = `🕒 ${l.startTime.split(':').slice(0,2).join(':')} → ${l.endTime.split(':').slice(0,2).join(':')} | ${durStr} | 💤 ${l.sessionType} | 🍽️ ${l.feeding}`;
-      output += `<div class="deletable" title="💡Click to delete this session" data-index="${i}" data-date="${l.date}">${sessionText}</div>\n`;
+      output += `<span class="deletable" title="💡Click to delete this session" data-index="${i}" data-date="${l.date}">${sessionText}</span>\n`;
     });
   } 
 
@@ -138,7 +138,7 @@ function showToday() {
   const today = new Date().toISOString().split("T")[0];
   displayLogs(
     sleepLog.filter(l => l.date === today),
-    `🗓️ Summary for ${today}`
+    `📅 Summary for ${today}`
   );
 }
 
@@ -172,7 +172,7 @@ function showAll() {
       totalSessions += dayLogs.length;
       totalTime += dayTotal;
 
-      output += `\n🗓️ ${date} | 🛌 ${dayLogs.length} | ⏱ ${formatDuration(dayTotal)}\n`;
+      output += `\n📅 ${date} | 🛌 ${dayLogs.length} | ⏱ ${formatDuration(dayTotal)}\n`;
 
       dayLogs.forEach((l, i) => {
         const mins = Math.round(toSeconds(l.duration) / 60),
@@ -188,7 +188,7 @@ function showAll() {
       });
     });
 
-    output += `\n🗓️ ${dates.length} days | 🛌 ${totalSessions} total | ⏱ ${formatDuration(totalTime)}`;
+    output += `\n📅 ${dates.length} days | 🛌 ${totalSessions} total | ⏱ ${formatDuration(totalTime)}`;
   }
 
   summaryText.innerHTML = output;
@@ -209,7 +209,7 @@ function searchByDate() {
   if (!input || !input.value) return alert("Please pick a date.");
   displayLogs(
     sleepLog.filter(l => l.date === input.value),
-    `🗓️ Sessions for ${input.value}`
+    `📅 Sessions for ${input.value}`
   );
 }
 
@@ -233,20 +233,39 @@ function exportToExcel() {
 function showChart() {
   showView("chart");
 
+  // Destroy existing charts to prevent duplicates
   [barChartInstance, pieChartInstance, lineChartInstance, feedStackedInstance].forEach(c => c?.destroy());
 
-  const grouped = {}, typeTotals = { Nap: 0, "Mid-Nap": 0, "Sleep Session": 0 };
-  const feedByDate = {}, avgSessionLengths = {};
+  const grouped = {};
+  const typeTotals = {};
+  const feedByDate = {};
+  const avgSessionLengths = {};
+
+  // Normalize session type names
+  const typeMap = {
+    "Nap": "Nap",
+    "Mid Nap": "Mid-Nap",
+    "Sleep Session": "Sleep Session"
+  };
 
   sleepLog.forEach(log => {
-    const d = log.date;
-    grouped[d] = grouped[d] || [];
-    grouped[d].push(log);
-    typeTotals[log.sessionType]++;
-    feedByDate[d] = feedByDate[d] || { before:0, after:0};
-    feedByDate[d][log.feeding]++;
-    avgSessionLengths[d] = avgSessionLengths[d] || [];
-    avgSessionLengths[d].push(toSeconds(log.duration));
+    const date = log.date;
+
+    // Group sessions by date
+    grouped[date] = grouped[date] || [];
+    grouped[date].push(log);
+
+    // Normalize and count session types
+    const normalizedType = typeMap[log.sessionType] || "Other";
+    typeTotals[normalizedType] = (typeTotals[normalizedType] || 0) + 1;
+
+    // Track feeding counts
+    feedByDate[date] = feedByDate[date] || { before: 0, after: 0 };
+    feedByDate[date][log.feeding] = (feedByDate[date][log.feeding] || 0) + 1;
+
+    // Track session durations per day
+    avgSessionLengths[date] = avgSessionLengths[date] || [];
+    avgSessionLengths[date].push(toSeconds(log.duration));
   });
 
   const dates = Object.keys(grouped).sort();
@@ -255,58 +274,82 @@ function showChart() {
     return el ? el.getContext("2d") : null;
   };
 
-  if (ctx("barChart"))
+  // Bar chart: Total sleep per day
+  if (ctx("barChart")) {
     barChartInstance = new Chart(ctx("barChart"), {
       type: "bar",
       data: {
         labels: dates,
         datasets: [{
           label: "Total Sleep (min)",
-          data: dates.map(d => grouped[d].reduce((s,l)=>s+toSeconds(l.duration),0)/60)
+          data: dates.map(d => grouped[d].reduce((s, l) => s + toSeconds(l.duration), 0) / 60)
         }]
       }
     });
+  }
 
-  if (ctx("typePieChart"))
+  // Pie chart: Sleep session type distribution
+  if (ctx("typePieChart")) {
     pieChartInstance = new Chart(ctx("typePieChart"), {
       type: "pie",
       data: {
         labels: Object.keys(typeTotals),
-        datasets: [{ data: Object.values(typeTotals) }]
+        datasets: [{
+          data: Object.values(typeTotals)
+        }]
       }
     });
+  }
 
-  const avg7 = dates.map((_,i) => {
-    const slice = dates.slice(Math.max(0,i-6), i+1);
-    const sum = slice.reduce((s,d)=>s + avgSessionLengths[d].reduce((a,b)=>a+b,0), 0);
-    const cnt = slice.reduce((c,d)=>c + avgSessionLengths[d].length, 0);
-    return cnt ? Math.round(sum/cnt/60) : 0;
+  // Line chart: Daily average session duration and 7-day rolling average
+  const avg7 = dates.map((_, i) => {
+    const slice = dates.slice(Math.max(0, i - 6), i + 1);
+    const sum = slice.reduce((s, d) => s + avgSessionLengths[d].reduce((a, b) => a + b, 0), 0);
+    const count = slice.reduce((c, d) => c + avgSessionLengths[d].length, 0);
+    return count ? Math.round(sum / count / 60) : 0;
   });
 
-  if (ctx("lineChart"))
+  if (ctx("lineChart")) {
     lineChartInstance = new Chart(ctx("lineChart"), {
       type: "line",
       data: {
         labels: dates,
         datasets: [
-          { label: "Avg Session (min)", data: dates.map(d => Math.round(avgSessionLengths[d].reduce((a,b)=>a+b,0)/avgSessionLengths[d].length/60)) },
-          { label: "7-Day Avg", data: avg7, borderDash: [5,5] }
+          {
+            label: "Avg Session (min)",
+            data: dates.map(d =>
+              Math.round(avgSessionLengths[d].reduce((a, b) => a + b, 0) / avgSessionLengths[d].length / 60)
+            )
+          },
+          {
+            label: "7-Day Avg",
+            data: avg7,
+            borderDash: [5, 5]
+          }
         ]
       }
     });
+  }
 
-  if (ctx("feedStackedChart"))
+  // Stacked feeding chart
+  if (ctx("feedStackedChart")) {
     feedStackedInstance = new Chart(ctx("feedStackedChart"), {
       type: "bar",
       data: {
         labels: dates,
-        datasets: ["before","after"].map(f => ({
-          label: `Fed ${f}`, 
-          data: dates.map(d => feedByDate[d]?.[f] || 0)
+        datasets: ["before", "after"].map(feeding => ({
+          label: `Fed ${feeding}`,
+          data: dates.map(d => feedByDate[d]?.[feeding] || 0)
         }))
       },
-      options: { scales: { x: { stacked:true }, y: { stacked:true } } }
+      options: {
+        scales: {
+          x: { stacked: true },
+          y: { stacked: true }
+        }
+      }
     });
+  }
 }
 
 // Dark mode toggle
