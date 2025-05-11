@@ -229,7 +229,7 @@ button {
 
   #summary-text {
     font-size: 0.95rem;
-    padding: 1rem 0.75rem;
+    /* padding: 1rem 0.75rem; */
   }
 
   /* #log-output {

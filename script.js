@@ -138,7 +138,7 @@ function showToday() {
   const today = new Date().toISOString().split("T")[0];
   displayLogs(
     sleepLog.filter(l => l.date === today),
-    `🗓️ Summary for ${today}`
+    `📅 Summary for ${today}`
   );
 }
 
@@ -172,7 +172,7 @@ function showAll() {
       totalSessions += dayLogs.length;
       totalTime += dayTotal;
 
-      output += `\n🗓️ ${date} | 🛌 ${dayLogs.length} | ⏱ ${formatDuration(dayTotal)}\n`;
+      output += `\n📅 ${date} | 🛌 ${dayLogs.length} | ⏱ ${formatDuration(dayTotal)}\n`;
 
       dayLogs.forEach((l, i) => {
         const mins = Math.round(toSeconds(l.duration) / 60),
