@@ -231,8 +231,8 @@ button {
   }
 
   #summary-text {
-    font-size: 0.95em;
-    /* padding: 1rem 0.75rem; */
+    font-size: 1em;
+    padding: 1em 0.75em;
   }
 
   #log-output {
