@@ -172,7 +172,7 @@ function showAll() {
       totalSessions += dayLogs.length;
       totalTime += dayTotal;
 
-      output += `\n🗓️ ${date} | 🛌 ${dayLogs.length} | ⏱ ${formatDuration(dayTotal)}\nTTTTTTTTTTTTTTTTTTTTTTTT`;
+      output += `\n🗓️ ${date} | 🛌 ${dayLogs.length} | ⏱ ${formatDuration(dayTotal)}\n`;
 
       dayLogs.forEach((l, i) => {
         const mins = Math.round(toSeconds(l.duration) / 60),
