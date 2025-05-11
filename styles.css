@@ -8,7 +8,6 @@ body {
   flex-direction: column;
   font-family: sans-serif;
   margin: 0;
-  /* background: #f9f9f9; */
   color: #333;
   height: 100%;
   box-sizing: border-box;
@@ -64,7 +63,6 @@ nav a.active {
   justify-content: space-evenly;
   height: inherit;
   box-sizing: border-box;
-  /* background-color: #6994bc; */
 }
 
 .buttons {
@@ -122,10 +120,7 @@ button {
   border-radius: 6px;
   box-shadow: 0 0 5px #2f5fa7;
   margin: auto;
-  /* width: 100%; */
-  /* max-width: 100%; */
   box-sizing: border-box;
-  /* overflow-x: auto;  */
 }
 
 #log-output:not(.hidden) {
@@ -133,13 +128,13 @@ button {
 }
 
 #summary-text {
-  /* white-space: normal; */
-  /* word-break: break-word;
-  overflow-wrap: break-word; */
-  /* width: 100%; */
   padding: 1rem;
-  box-sizing: border-box;
   font-size: 1rem;
+  line-height: 1.5;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 #copy-summary-btn {
@@ -209,7 +204,8 @@ button {
     padding: 0.5rem;
   }
 
-  header, footer {
+  header,
+  footer {
     padding: 0.5rem;
   }
 
@@ -221,7 +217,7 @@ button {
   button {
     width: 100%;
     margin-bottom: 0.5rem;
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   nav {
@@ -230,18 +226,18 @@ button {
     align-items: center;
   }
 
-  #timer-display {
-    font-size: 1em;
-    max-width: 90%;
-  }
-
   #summary-text {
     font-size: 0.95rem;
-    padding: 1rem 0.5rem;
+    padding: 1rem 0.75rem;
   }
 
   #log-output {
-    padding: 0;
+    padding: 0.75rem;
+  }
+
+  #timer-display {
+    font-size: 1em;
+    max-width: 90%;
   }
 }
 
