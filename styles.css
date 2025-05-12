@@ -114,7 +114,8 @@ button {
 }
 
 #log-output {
-  display: none;
+  display: none;  width: 100%;
+
   flex-direction: column;
   justify-content: center;
   align-items: center; /* <-- Add this */
@@ -180,6 +181,9 @@ button {
 .dark body {
   background-color: #121212;
   color: #e0e0e0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
 }
 
 .dark body header,
@@ -231,8 +235,8 @@ button {
   }
 
   #summary-text {
-    font-size: 1em;
-    padding: 1em 0.75em;
+    font-size: 0.9em;
+    padding: 0;
   }
 
   #log-output {
