@@ -1,19 +1,5 @@
 // Service workers are specialized JavaScript assets that act as proxies between web browsers and web servers.
 // They aim to improve reliability by providing offline access, as well as boost page performance.
-
-// self.addEventListener("install", event => {
-//     self.skipWaiting();
-//   });
-  
-//   self.addEventListener("activate", event => {
-//     clients.claim();
-//   });
-  
-//   self.addEventListener("fetch", event => {
-//     event.respondWith(fetch(event.request));
-//   });
-
-
 const CACHE_NAME = "sleep-tracker-cache-v2.1";
 const urlsToCache = [
   "./",
