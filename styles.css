@@ -206,6 +206,55 @@ button {
   background-color: #555;
 }
 
+#edit-form-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fdfdfd;
+  padding: 1.5rem;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  z-index: 1000;
+  width: 90%;
+  max-width: 400px;
+}
+
+#edit-form-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+#edit-form-modal input,
+#edit-form-modal select {
+  padding: 0.4rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  flex-grow: 1;
+}
+
+#edit-form-modal button {
+  margin-top: 0.5rem;
+  font-weight: bold;
+}
+
+.dark #edit-form-modal {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border-color: #444;
+}
+
+.dark #edit-form-modal input,
+.dark #edit-form-modal select {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  border: 1px solid #666;
+}
+
+
 /* 📱 Small Devices (phones) */
 @media (max-width: 599px) {
   body {

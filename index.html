@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Theme color for mobile and PWA -->
   <meta name="theme-color" content="#add8e6" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
 
@@ -48,6 +47,8 @@
     <div class="buttons">
       <button onclick="startSleep()">💤 Start Sleep</button>
       <button onclick="endSleep()">👻 End Sleep</button>
+      <button onclick="enableEditMode()" id="editModeBtn">✏️ Edit Mode</button>
+      <button onclick="addNewSession()">➕ Add Session</button>
     </div>
 
     <div class="date-search">
@@ -58,20 +59,42 @@
     <div id="timer-display" class="hidden">
       🕒 Sleep in progress: <span id="timer-elapsed">00:00:00</span>
     </div>
-    
   </main>
 
-  <!-- New summary section for search results -->
   <div id="log-output" class="hidden">
     <pre id="summary-text"></pre>
-     <!-- <div id="summary-text" class="summary-list"></div> -->
     <button id="copy-summary-btn" class="hidden" onclick="copySummary()">📋 Copy Summary</button>
   </div>
 
   <div id="back-button" class="hidden">
     <button onclick="RefreshPage()">🔄 Refresh Page</button>
   </div>
-  
+
+  <!-- 🧾 Edit/Add Session Modal -->
+  <div id="edit-form-modal" class="hidden">
+    <h3>Edit/Add Sleep Session</h3>
+    <form onsubmit="submitEditForm(event)">
+      <input type="hidden" id="edit-index">
+      <label>Date: <input type="date" id="edit-date" required></label><br>
+      <label>Start Time: <input type="time" id="edit-start" required></label><br>
+      <label>End Time: <input type="time" id="edit-end" required></label><br>
+      <label>Feeding:
+        <select id="edit-feed" required>
+          <option value="before">Before</option>
+          <option value="after">After</option>
+        </select>
+      </label><br>
+      <label>Session Type:
+        <select id="edit-type" required>
+          <option value="Nap">Nap</option>
+          <option value="Mid Nap">Mid Nap</option>
+          <option value="Sleep Session">Sleep Session</option>
+        </select>
+      </label><br>
+      <button type="submit">✅ Save</button>
+      <button type="button" onclick="closeEditForm()">❌ Cancel</button>
+    </form>
+  </div>
 
   <footer>
     <p>© 🃏 POCO_dev</p>
@@ -79,20 +102,7 @@
 
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js" defer></script>
   <script src="./script.js" defer></script>
-  <script src="service-worker.js" defer></script>
-
-  <!-- <script>
-    const swPath = location.pathname.includes("/html/") ? "../service-worker.js" : "./service-worker.js";
-    if ('serviceWorker' in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register(swPath).then(
-          reg => console.log("✅ Service Worker registered:", reg),
-          err => console.error("❌ Service Worker registration failed:", err)
-        );
-      });
-    }
-  </script> -->
-
+  <script src="./service-worker.js" defer></script>
   <script>
     function toggleDarkMode() {
       const isDark = document.getElementById("darkToggle").checked;
@@ -105,6 +115,5 @@
       document.getElementById("darkToggle").checked = saved;
     });
   </script>
-
 </body>
 </html>

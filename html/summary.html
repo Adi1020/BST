@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Theme color for mobile and PWA -->
   <meta name="theme-color" content="#add8e6" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
-
-  <!-- Apply dark mode immediately if stored -->
   <script>
     const savedMode = localStorage.getItem("darkMode");
     if (savedMode === "true") {
@@ -26,7 +23,6 @@
   <script src="../script.js" defer></script>
 </head>
 <body>
-  <!-- Dark mode toggle -->
   <div class="theme-toggle">
     <label>
       <input type="checkbox" id="darkToggle" onchange="toggleDarkMode()" />
@@ -48,6 +44,8 @@
     <div class="buttons">
       <button onclick="showToday()">🗓️ Today’s Summary</button>
       <button onclick="showAll()">📊 All Sessions</button>
+      <button onclick="enableEditMode()" id="editModeBtn">✏️ Edit Mode</button>
+      <button onclick="addNewSession()">➕ Add Session</button>
     </div>
   </main>
 
@@ -60,29 +58,38 @@
     <div id="back-button">
       <button onclick="goToHome()">🔙 Back Home</button>
     </div>
-    
     <div id="back-button">
       <button onclick="RefreshPage()">🔄 Refresh Page</button>
     </div>
   </div>
-  
+
+  <div id="edit-form-modal" class="hidden">
+    <h3>Edit/Add Sleep Session</h3>
+    <form onsubmit="submitEditForm(event)">
+      <input type="hidden" id="edit-index">
+      <label>Date: <input type="date" id="edit-date" required></label><br>
+      <label>Start Time: <input type="time" id="edit-start" required></label><br>
+      <label>End Time: <input type="time" id="edit-end" required></label><br>
+      <label>Feeding:
+        <select id="edit-feed" required>
+          <option value="before">Before</option>
+          <option value="after">After</option>
+        </select>
+      </label><br>
+      <label>Session Type:
+        <select id="edit-type" required>
+          <option value="Nap">Nap</option>
+          <option value="Mid Nap">Mid Nap</option>
+          <option value="Sleep Session">Sleep Session</option>
+        </select>
+      </label><br>
+      <button type="submit">✅ Save</button>
+      <button type="button" onclick="closeEditForm()">❌ Cancel</button>
+    </form>
+  </div>
+
   <footer>
     <p>© 🃏 POCO_dev</p>
   </footer>
-
-  <!-- Ensure dark mode and buttons initialize properly -->
-  <!-- <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      const saved = localStorage.getItem("darkMode") === "true";
-      const toggle = document.getElementById("darkToggle");
-      if (toggle) {
-        toggle.checked = saved;
-        document.body.classList.toggle("dark", saved);
-      }
-
-      const back = document.getElementById("back-button");
-      if (back) back.classList.add("hidden");
-    });
-  </script> -->
 </body>
 </html>
