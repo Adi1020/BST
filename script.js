@@ -5,6 +5,9 @@ let startTime = localStorage.getItem("startTime")
 
 // Timer interval
 let timerInterval = null;
+let lastDisplayedLogs = [];
+let lastDisplayedTitle = "";
+let isSummaryVisible = false;
 
 // Chart.js instances
 let barChartInstance, pieChartInstance, lineChartInstance, feedStackedInstance;
@@ -40,8 +43,10 @@ function endSleep() {
 
   sleepLog.push({
     date: startTime.toISOString().split("T")[0],
-    startTime: startTime.toLocaleTimeString(),
-    endTime: endTime.toLocaleTimeString(),
+    // startTime: startTime.toLocaleTimeString(),
+    // endTime: endTime.toLocaleTimeString(),
+    startTime: startTime.toTimeString().slice(0, 5),
+    endTime: endTime.toTimeString().slice(0, 5),
     duration: durationStr,
     feeding: feedStatus,
     sessionType
@@ -81,7 +86,24 @@ function showView(view) {
   else if (view === "chart" && chartSection) chartSection.classList.remove("hidden");
 }
 
-function displayLogs(logs, title) {
+function displayLogs(logs, title, forceShow = false) {
+  const logOutput = document.getElementById("log-output");
+
+  const sameTitle = title === lastDisplayedTitle;
+  const sameLength = logs.length === lastDisplayedLogs.length;
+  const sameLogs = sameLength && logs.every((l, i) =>
+    JSON.stringify(l) === JSON.stringify(lastDisplayedLogs[i])
+  );
+
+  if (!forceShow && isSummaryVisible && sameTitle && sameLogs) {
+    logOutput.classList.add("hidden");
+    isSummaryVisible = false;
+    return;
+  }
+
+  lastDisplayedLogs = logs;
+  lastDisplayedTitle = title;
+  isSummaryVisible = true;
   showView("log");
 
   const summaryText = document.getElementById("summary-text");
@@ -95,7 +117,7 @@ function displayLogs(logs, title) {
     const total = logs.reduce((sum, l) => sum + toSeconds(l.duration), 0);
     const avgMin = Math.round(total / (logs.length * 60));
     const typeCounts = { Nap: 0, "Mid Nap": 0, "Sleep Session": 0 };
-    const feedCounts = { before: 0, after: 0};
+    const feedCounts = { before: 0, after: 0 };
 
     logs.forEach(l => {
       typeCounts[l.sessionType]++;
@@ -109,25 +131,51 @@ function displayLogs(logs, title) {
     output += `📊 Types: ${typeCounts.Nap} Nap, ${typeCounts["Mid Nap"]} Mid-Nap, ${typeCounts["Sleep Session"]} Sleep\n`;
     output += `🍽️ Feeding: ${feedCounts.before} before, ${feedCounts.after} after\n\n`;
 
-    logs.forEach((l, i) => {
+    logs.forEach((l) => {
+      const globalIndex = sleepLog.findIndex(s =>
+        s.date === l.date &&
+        s.startTime === l.startTime &&
+        s.endTime === l.endTime &&
+        s.duration === l.duration &&
+        s.sessionType === l.sessionType &&
+        s.feeding === l.feeding
+      );
+
       const durMin = Math.round(toSeconds(l.duration) / 60),
             h = Math.floor(durMin / 60),
             m = durMin % 60,
             durStr = h ? `${h}h ${m}m` : `${m}m`;
 
-      const sessionText = `🕒 ${l.startTime.split(':').slice(0,2).join(':')} → ${l.endTime.split(':').slice(0,2).join(':')} | ${durStr} | 💤 ${l.sessionType} | 🍽️ ${l.feeding}`;
-      output += `<span class="deletable" title="💡Click to delete this session" data-index="${i}" data-date="${l.date}">${sessionText}</span>\n`;
+      const sessionText = `🕒 ${l.startTime} → ${l.endTime} | ${durStr} | 💤 ${l.sessionType} | 🍽️ ${l.feeding}`;
+      output += `<span class="deletable"
+        title="💡Click to ${isEditMode ? 'edit' : 'delete'} this session"
+        data-global-index="${globalIndex}"
+        data-date="${l.date}"
+      >${sessionText}</span>\n`;
     });
-  } 
+  }
 
   summaryText.innerHTML = output;
 
-  // Attach click-to-delete event to each session line
   summaryText.querySelectorAll(".deletable").forEach(el => {
     el.addEventListener("click", () => {
-      const index = +el.dataset.index;
+      const globalIndex = +el.dataset.globalIndex;
       const date = el.dataset.date;
-      deleteSession(index, date);
+
+      if (globalIndex === -1 || !sleepLog[globalIndex]) return;
+
+      if (isEditMode) {
+        openEditForm(globalIndex, sleepLog[globalIndex]);
+      } else {
+        const session = sleepLog[globalIndex];
+        const logsOnDate = sleepLog.filter(l => l.date === date);
+        const relativeIndex = logsOnDate.findIndex(l =>
+          l.startTime === session.startTime &&
+          l.endTime === session.endTime &&
+          l.duration === session.duration
+        );
+        deleteSession(relativeIndex, date);
+      }
     });
   });
 
@@ -142,7 +190,15 @@ function showToday() {
   );
 }
 
-function showAll() {
+function showAll(forceShow = false) {
+  const logOutput = document.getElementById("log-output");
+
+  if (!forceShow && isSummaryVisible && lastDisplayedTitle === "📊 Overall Sleep Summary by Day:") {
+    logOutput.classList.add("hidden");
+    isSummaryVisible = false;
+    return;
+  }
+
   showView("log");
 
   const summaryText = document.getElementById("summary-text");
@@ -161,6 +217,9 @@ function showAll() {
   const dates = Object.keys(grouped).sort();
   let output = "📊 Overall Sleep Summary by Day:\n";
 
+  lastDisplayedLogs = [...sleepLog];
+  lastDisplayedTitle = "📊 Overall Sleep Summary by Day:";
+
   if (dates.length === 0) {
     output = "❌ No sessions found.";
   } else {
@@ -174,17 +233,28 @@ function showAll() {
 
       output += `\n🗓️ ${date} | 🛌 ${dayLogs.length} | ⏱ ${formatDuration(dayTotal)}\n`;
 
-      dayLogs.forEach((l, i) => {
-        const mins = Math.round(toSeconds(l.duration) / 60),
+      dayLogs.forEach((session) => {
+        const globalIndex = sleepLog.findIndex(l =>
+          l.date === session.date &&
+          l.startTime === session.startTime &&
+          l.endTime === session.endTime &&
+          l.duration === session.duration &&
+          l.sessionType === session.sessionType &&
+          l.feeding === session.feeding
+        );
+
+        const mins = Math.round(toSeconds(session.duration) / 60),
               h = Math.floor(mins / 60),
               m = mins % 60,
               durStr = h ? `${h}h ${m}m` : `${m}m`;
 
-        const start = l.startTime.split(':').slice(0,2).join(':');
-        const end = l.endTime.split(':').slice(0,2).join(':');
-
-        const sessionText = `🛏️ ${start} → ${end} | ${durStr} | 🍽️ ${l.feeding}`;
-        output += `<span class="deletable" title="💡Click to delete this session" data-index="${i}" data-date="${l.date}">${sessionText}</span>\n`;
+        const sessionText = `🛏️ ${session.startTime} → ${session.endTime} | ${durStr} | 🍽️ ${session.feeding}`;
+        output += `<span 
+          class="deletable" 
+          title="💡Click to ${isEditMode ? 'edit' : 'delete'} this session"
+          data-global-index="${globalIndex}"
+          data-date="${session.date}"
+        >${sessionText}</span>\n`;
       });
     });
 
@@ -195,13 +265,28 @@ function showAll() {
 
   summaryText.querySelectorAll(".deletable").forEach(el => {
     el.addEventListener("click", () => {
-      const index = +el.dataset.index;
+      const globalIndex = +el.dataset.globalIndex;
       const date = el.dataset.date;
-      deleteSession(index, date, "all");
+
+      if (globalIndex === -1 || !sleepLog[globalIndex]) return;
+
+      if (isEditMode) {
+        openEditForm(globalIndex, sleepLog[globalIndex]);
+      } else {
+        const session = sleepLog[globalIndex];
+        const logsOnDate = sleepLog.filter(l => l.date === date);
+        const relativeIndex = logsOnDate.findIndex(l =>
+          l.startTime === session.startTime &&
+          l.endTime === session.endTime &&
+          l.duration === session.duration
+        );
+        deleteSession(relativeIndex, date, "all");
+      }
     });
   });
 
   if (copyBtn && dates.length > 0) copyBtn.classList.remove("hidden");
+  isSummaryVisible = true;
 }
 
 function searchByDate() {
@@ -438,7 +523,161 @@ function deleteSession(index, date, source = "today") {
       sleepLog.splice(globalIndex, 1);
       saveLog();
       alert("🗑️ Session deleted.");
-      source === "all" ? showAll() : showToday();
+
+      // 🔁 Restore correct view
+      if (lastDisplayedTitle === "📊 Overall Sleep Summary by Day:") {
+        showAll(true);
+      } else if (lastDisplayedLogs.length && lastDisplayedLogs[0].date === date) {
+        displayLogs(
+          sleepLog.filter(l => l.date === date),
+          `🗓️ Summary for ${date}`,
+          true
+        );
+      } else {
+        displayLogs(
+          sleepLog.filter(l => l.date === date),
+          `🗓️ Sessions for ${date}`,
+          true
+        );
+      }
     }
   }
+}
+
+
+let isEditMode = false;
+
+function enableEditMode() {
+  if (lastDisplayedLogs.length === 0) {
+    alert("ℹ️ Please display a summary first (Today, All Sessions, or Search) before editing.");
+    return;
+  }
+
+  isEditMode = !isEditMode;
+  const btn = document.getElementById("editModeBtn");
+  if (btn) {
+    btn.textContent = isEditMode ? "✅ Done Editing" : "✏️ Edit Mode";
+    btn.style.backgroundColor = isEditMode ? "#dcb946" : "";
+  }
+
+  // Ensure summary is displayed when toggling Edit Mode
+  if (lastDisplayedTitle === "📊 Overall Sleep Summary by Day:") {
+    showAll(true);
+  } else {
+    displayLogs(lastDisplayedLogs, lastDisplayedTitle, true);
+  }
+}
+
+function addNewSession() {
+  openEditForm(-1);
+}
+
+function openEditForm(index = -1, data = null) {
+  document.getElementById("edit-form-modal").classList.remove("hidden");
+  document.getElementById("edit-index").value = index;
+
+  if (data) {
+    document.getElementById("edit-date").value = data.date;
+    document.getElementById("edit-start").value = formatForTimeInput(data.startTime);
+    document.getElementById("edit-end").value = formatForTimeInput(data.endTime);
+    document.getElementById("edit-feed").value = data.feeding;
+    document.getElementById("edit-type").value = data.sessionType;
+  } else {
+    document.querySelector("#edit-form-modal form").reset();
+  }
+}
+
+
+function closeEditForm() {
+  document.getElementById("edit-form-modal").classList.add("hidden");
+}
+
+function submitEditForm(e) {
+  e.preventDefault();
+
+  const index = parseInt(document.getElementById("edit-index").value);
+  const date = document.getElementById("edit-date").value;
+  const start = document.getElementById("edit-start").value;
+  const end = document.getElementById("edit-end").value;
+  const feed = document.getElementById("edit-feed").value;
+  const type = document.getElementById("edit-type").value;
+  const duration = calcDuration(start, end);
+
+  const session = {
+    date,
+    startTime: formatToTimeString(start),
+    endTime: formatToTimeString(end),
+    duration,
+    feeding: feed,
+    sessionType: type
+  };
+
+  if (index === -1) {
+    sleepLog.push(session);
+  } else {
+    sleepLog[index] = session;
+  }
+
+  saveLog();
+  closeEditForm();
+  alert("✅ Session saved.");
+
+  // 🔁 Reactivate the view based on current context
+  if (lastDisplayedTitle === "📊 Overall Sleep Summary by Day:") {
+    showAll(true); // force refresh
+  } else if (lastDisplayedLogs.length && lastDisplayedLogs[0].date === date) {
+    displayLogs(
+      sleepLog.filter(l => l.date === date),
+      `🗓️ Summary for ${date}`,
+      true
+    );
+  } else {
+    // Home page fallback: just show the new date's summary
+    displayLogs(
+      sleepLog.filter(l => l.date === date),
+      `🗓️ Sessions for ${date}`,
+      true
+    );
+  }
+}
+
+function to24hr(timeStr) {
+  const d = new Date("1970-01-01T" + timeStr);
+  return d.toTimeString().split(" ")[0].slice(0, 5);
+}
+
+function calcDuration(start, end) {
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
+  let mins = (eh * 60 + em) - (sh * 60 + sm);
+  if (mins < 0) mins += 1440;
+  return formatDuration(mins * 60);
+}
+
+// Update displayLogs() event listeners
+function getGlobalIndex(session) {
+  return sleepLog.findIndex(l =>
+    l.date === session.date &&
+    l.startTime === session.startTime &&
+    l.endTime === session.endTime &&
+    l.duration === session.duration
+  );
+}
+
+function formatForTimeInput(timeStr) {
+  // Converts "2:30:00 PM" or "14:30:00" → "14:30"
+  const date = new Date(`1970-01-01T${timeStr}`);
+  if (isNaN(date)) {
+    // fallback for "2:30:00 PM"
+    const parsed = new Date(`1970-01-01 ${timeStr}`);
+    return parsed.toTimeString().slice(0, 5);
+  }
+  return date.toTimeString().slice(0, 5);
+}
+
+function formatToTimeString(hhmm) {
+  const [h, m] = hhmm.split(':').map(Number);
+  const date = new Date();
+  date.setHours(h, m, 0);
+  return date.toTimeString().slice(0, 5); // "HH:MM"
 }
