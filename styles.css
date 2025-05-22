@@ -206,6 +206,7 @@ button {
   background-color: #555;
 }
 
+
 #edit-form-modal {
   position: fixed;
   top: 50%;
@@ -253,7 +254,6 @@ button {
   color: #e0e0e0;
   border: 1px solid #666;
 }
-
 
 /* 📱 Small Devices (phones) */
 @media (max-width: 599px) {
