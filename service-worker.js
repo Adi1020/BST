@@ -21,6 +21,7 @@ self.addEventListener("install", event => {
       return cache.addAll(urlsToCache);
     })
   );
+  // console.log(urlsToCache);
 });
 
 // Activate and remove old caches
