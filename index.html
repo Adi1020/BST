@@ -79,8 +79,9 @@
 
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js" defer></script>
   <script src="./script.js" defer></script>
+  <script src="service-worker.js" defer></script>
 
-  <script>
+  <!-- <script>
     const swPath = location.pathname.includes("/html/") ? "../service-worker.js" : "./service-worker.js";
     if ('serviceWorker' in navigator) {
       window.addEventListener("load", () => {
@@ -90,7 +91,7 @@
         );
       });
     }
-  </script>
+  </script> -->
 
   <script>
     function toggleDarkMode() {
